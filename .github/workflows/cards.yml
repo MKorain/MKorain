@@ -18,17 +18,38 @@ jobs:
           card: stats
           options: username=MKorain&include_all_commits=true&hide=stars,prs,issues&show_icons=true&hide_border=true&bg_color=0D1117&title_color=58A6FF&text_color=C9D1D9&icon_color=58A6FF
           path: profile/stats.svg
-          # STATS_PAT (classic, repo + read:user) makes private commits visible.
-          # Falls back to GITHUB_TOKEN so the workflow still succeeds without it —
-          # public-only counts until the PAT is added.
-          token: ${{ secrets.STATS_PAT || secrets.GITHUB_TOKEN }}
+          # STATS_PAT must be a CLASSIC token with repo + read:user, or private
+          # commits stay invisible. No GITHUB_TOKEN fallback: it authenticates
+          # but cannot see private contributions, so it would quietly publish a
+          # card reading 13 commits instead of ~535.
+          token: ${{ secrets.STATS_PAT }}
+          # Without this the action writes an SVG that says "Something went
+          # wrong! Downtime due to GitHub API rate limiting" for ANY failure —
+          # including a bad token — and the step still reports success. That
+          # error card then gets committed to the profile.
+          fail_on_error: true
 
       - uses: stats-organization/github-readme-stats-action@v2
         with:
           card: top-langs
           options: username=MKorain&layout=compact&langs_count=8&exclude_repo=BulkCoreTemplate&hide_border=true&bg_color=0D1117&title_color=58A6FF&text_color=C9D1D9
           path: profile/top-langs.svg
-          token: ${{ secrets.STATS_PAT || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.STATS_PAT }}
+          fail_on_error: true
+
+      - name: Reject error cards
+        # Belt and braces: a real card is several KB. The error SVG is <1500
+        # bytes. Refuse to commit anything that small even if the action above
+        # reports success.
+        run: |
+          for f in profile/stats.svg profile/top-langs.svg; do
+            size=$(wc -c < "$f")
+            if [ "$size" -lt 1500 ]; then
+              echo "::error::$f is only $size bytes — almost certainly an error card, not committing."
+              grep -o 'Something went wrong[^<]*' "$f" || true
+              exit 1
+            fi
+          done
 
       - name: Commit updated cards
         run: |
