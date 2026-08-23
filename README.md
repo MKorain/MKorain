@@ -164,14 +164,6 @@ tracing wired in from the first commit rather than after the first production in
 
 <img src="./profile/stats.svg" alt="GitHub stats" height="170"> <img src="./profile/top-langs.svg" alt="Top languages" height="170">
 
-## Public code
-
-**[FluentValidation.AspNetCore.TagHelpers](https://github.com/MKorain/FluentValidation.AspNetCore.TagHelpers)**
-— an ASP.NET Core tag helper that generates jQuery Unobtrusive Validation attributes
-directly from FluentValidation rules, so client-side validation stops drifting from the
-server-side rules it mirrors. Handles nested complex types and caches validator
-descriptors. MIT licensed.
-
 ---
 
 **Open to backend and architecture work — permanent or consulting.**
