@@ -16,7 +16,11 @@ jobs:
       - uses: stats-organization/github-readme-stats-action@v2
         with:
           card: stats
-          options: username=MKorain&include_all_commits=true&hide=stars,prs,issues&show_icons=true&hide_border=true&bg_color=0D1117&title_color=58A6FF&text_color=C9D1D9&icon_color=58A6FF
+          # Transparent background so the card reads in both GitHub light and
+          # dark themes. A hardcoded 0D1117 canvas is GitHub dark's own colour,
+          # which renders as a dark rectangle floating in a white page for
+          # light-mode readers.
+          options: username=MKorain&include_all_commits=true&hide=stars,prs,issues&show_icons=true&hide_border=true&bg_color=00000000&title_color=4493F8&text_color=8B949E&icon_color=4493F8
           path: profile/stats.svg
           # STATS_PAT must be a CLASSIC token with repo + read:user, or private
           # commits stay invisible. No GITHUB_TOKEN fallback: it authenticates
@@ -29,32 +33,22 @@ jobs:
           # error card then gets committed to the profile.
           fail_on_error: true
 
-      - uses: stats-organization/github-readme-stats-action@v2
-        with:
-          card: top-langs
-          options: username=MKorain&layout=compact&langs_count=8&exclude_repo=BulkCoreTemplate&hide_border=true&bg_color=0D1117&title_color=58A6FF&text_color=C9D1D9
-          path: profile/top-langs.svg
-          token: ${{ secrets.STATS_PAT }}
-          fail_on_error: true
-
       - name: Reject error cards
         # Belt and braces: a real card is several KB. The error SVG is <1500
         # bytes. Refuse to commit anything that small even if the action above
         # reports success.
         run: |
-          for f in profile/stats.svg profile/top-langs.svg; do
-            size=$(wc -c < "$f")
-            if [ "$size" -lt 1500 ]; then
-              echo "::error::$f is only $size bytes — almost certainly an error card, not committing."
-              grep -o 'Something went wrong[^<]*' "$f" || true
-              exit 1
-            fi
-          done
+          size=$(wc -c < profile/stats.svg)
+          if [ "$size" -lt 1500 ]; then
+            echo "::error::profile/stats.svg is only $size bytes — almost certainly an error card, not committing."
+            grep -o 'Something went wrong[^<]*' profile/stats.svg || true
+            exit 1
+          fi
 
       - name: Commit updated cards
         run: |
           git config user.name  'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add profile/*.svg
+          git add profile/stats.svg
           git commit -m "Update README cards" || exit 0
           git push
