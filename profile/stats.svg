@@ -9,7 +9,7 @@
         aria-labelledby="descId"
       >
         <title id="titleId">Mohamed Korain&#39;s GitHub Stats, Rank: B</title>
-        <desc id="descId">Total Commits  : 3336, Contributed to (last year): 27</desc>
+        <desc id="descId">Total Commits  : 3336, Contributed to (last year): 26</desc>
         <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -184,7 +184,7 @@
         x="224.01"
         y="12.5"
         data-testid="contribs"
-      >27</text>
+      >26</text>
     </g>
   </g>
     </svg>
